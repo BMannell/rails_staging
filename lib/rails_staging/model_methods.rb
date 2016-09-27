@@ -15,7 +15,7 @@ module RailsStaging
     end
 
     def apply(columns = {}, number = -1)
-      stage = RailsStage.where({table: self.class.table_name, column: columns}).first
+      stage = RailsStage.where({table: self.class.table_name, column: columns, row_id: self.id}).first
       self.send("set_#{columns}", stage.to)
     end
 

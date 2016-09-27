@@ -4,7 +4,7 @@ class CreateRailsStages < ActiveRecord::Migration
     create_table :rails_stages do |t|
       t.string :uuid
       t.string :table
-      t.string :column
+      t.integer :row_id
       t.string :from
       t.string :to
       t.string :creator, default: ""
