@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.email       = ["benjamin.mannell@gmail.com"]
   s.homepage    = "TODO"
   s.summary     = "TODO: Summary of RailsStaging."
-  s.description = "TODO: Description of RailsStaging."
+  s.description = "A Rails library to help with staging of models"
   s.license     = "MIT"
 
   s.files = Dir["{app,config,db,lib}/**/*", "LICENSE", "Rakefile", "README.rdoc"]

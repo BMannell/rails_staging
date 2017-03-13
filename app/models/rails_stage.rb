@@ -5,26 +5,32 @@ class RailsStage < ::ActiveRecord::Base
 
   self.inheritance_column = :_type_disabled
 
+  belongs_to :stageable, polymorphic: true
+
   ##
   # created the uuid
   # set other defaults
-  before_create do |stage|
-    stage.uuid = SecureRandom.uuid
-    stage.creator = stage.class.stage_creator
-  end
+  before_validation :set_defaults, on: :create
 
   def value
     case self.type
     when "Float"
-      self.text_value.to_f
+      self.value.to_f
     when "Integer"
-      self.text_value.to_i
+      self.value.to_i
     when "Complex"
-      self.text_value.to_c
+      self.value.to_c
     when "Rational"
-      self.text_value.to_r
+      self.value.to_r
     else
-      self.text_value
+      self.value
     end
+  end
+
+  private
+
+  def set_deafults
+    uuid = SecureRandom.uuid
+    creator = self.class.stage_creator || ""
   end
 end
