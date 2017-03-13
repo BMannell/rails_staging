@@ -23,7 +23,7 @@ module RailsStaging
     end
 
     def history(column=nil)
-      stages = RailsStage.where(table: self.class.table_name, row_id: self.id)
+      stages = rails_stages.where(stageable_id: self.id)
       if column.present?
         stages.where(column: column)
       end
@@ -31,14 +31,14 @@ module RailsStaging
     end
 
     def apply(uuid)
-      stage = RailsStage.find_by!(uuid: uuid)
+      stage = rails_stages.find_by!(uuid: uuid)
       self.send("set_#{stage.column}", stage.value)
       stage.update({applied: true})
     end
 
     def apply_all(column = nil)
 
-      stages = RailsStage.where(table: self.class.table_name, row_id: self.id, applied: false)
+      stages = rails_stages.where(stageable_id: self.id, applied: false)
 
       if column.present?
         stages.where(column: column)
@@ -64,11 +64,11 @@ module RailsStaging
       # TODO
       # - check if record has been saved, save if not
       self.save
-      RailsStage.create(table: self.class.table_name, column: column, row_id: self.id, predecessor: current_version(column), text_value: value, type: value.class.name)
+      rails_stages.create(column: column, stageable_id: self.id, predecessor: current_version(column), value: value, type: value.class.name)
     end
 
     def current_version(column)
-      if stage = RailsStage.where(table: self.class.table_name, column: column, row_id: self.id, applied: true).last
+      if stage = rails_stages.where(column: column, stageable_id: self.id, applied: true).last
         stage.uuid
       else
         ""
@@ -78,6 +78,8 @@ module RailsStaging
     module ClassMethods
 
       def stage(*columns)
+
+        has_many :rails_stages, as: :stageable
 
         ##
         # TODO
