@@ -1,0 +1,30 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Article History</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @article.history.each do |stage| %>
+      <tr>
+        <td><%= stage.column %></td>
+        <td>
+          <% if stage.appplied %>
+            <%= link_to 'Revert To Here', "" %>
+          <% else %>
+            <%= link_to 'Apply', "" %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Article', new_article_path %>

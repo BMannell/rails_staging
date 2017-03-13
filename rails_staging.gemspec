@@ -5,7 +5,7 @@ require "rails_staging/version"
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
-  s.name        = "rails_staging"
+  s.name        = "RailsStaging"
   s.version     = RailsStaging::VERSION
   s.authors     = ["Ben Mannell"]
   s.email       = ["benjamin.mannell@gmail.com"]
@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.description = "TODO: Description of RailsStaging."
   s.license     = "MIT"
 
-  s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
+  s.files = Dir["{app,config,db,lib}/**/*", "LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["test/**/*"]
 
   s.add_dependency "rails", "~> 4.2.7.1"
