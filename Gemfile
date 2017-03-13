@@ -13,11 +13,9 @@ gemspec
 group :test do
   gem "minitest-rails"
   gem "minitest-reporters"
+  gem 'factory_girl_rails'
 end
 
-## group :development, :test do
-##   gem 'factory_girl_rails'
-##   gem 'faker'
-## end
-
-
+group :development, :test do
+  gem 'faker'
+end
