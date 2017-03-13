@@ -10,7 +10,10 @@ class RailsStage < ::ActiveRecord::Base
   ##
   # created the uuid
   # set other defaults
-  before_validation :set_defaults, on: :create
+  before_create do |stage|
+    stage.uuid = SecureRandom.uuid
+    stage.creator = stage.class.stage_creator
+  end
 
   def value
     case self.type
@@ -25,12 +28,5 @@ class RailsStage < ::ActiveRecord::Base
     else
       self.value
     end
-  end
-
-  private
-
-  def set_deafults
-    uuid = SecureRandom.uuid
-    creator = self.class.stage_creator || ""
   end
 end

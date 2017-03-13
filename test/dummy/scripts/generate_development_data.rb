@@ -18,12 +18,3 @@ end
 
 # Generate Some Stages
 
-article = Article.all.first
-
-p article
-
-p article.rails_stages.build(column: "title", value: "A New Staged Title")
-
-RailsStage.create(stageable_id: article.id, stageable_type: "Article", column: "title", value: "A New Staged Title", type: "String")
-
-p article.rails_stages
