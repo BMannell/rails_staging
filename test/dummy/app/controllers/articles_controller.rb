@@ -4,7 +4,7 @@ class ArticlesController < ApplicationController
   # GET /articles
   def index
     @articles = Article.all
-  end  
+  end
 
   # GET /articles/1/history
   def history
@@ -57,6 +57,6 @@ class ArticlesController < ApplicationController
 
     # Only allow a trusted parameter "white list" through.
     def article_params
-      params[:article]
+      params.require(:article).permit(:title, :content, :image)
     end
 end

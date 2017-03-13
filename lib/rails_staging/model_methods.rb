@@ -23,11 +23,11 @@ module RailsStaging
     end
 
     def history(column=nil)
-      stages = rails_stages.where(stageable_id: self.id)
       if column.present?
-        stages.where(column: column)
+        rails_stages.where(column: column)
+      else
+        rails_stages
       end
-      stages
     end
 
     def apply(uuid)
@@ -38,7 +38,7 @@ module RailsStaging
 
     def apply_all(column = nil)
 
-      stages = rails_stages.where(stageable_id: self.id, applied: false)
+      stages = rails_stages.where(applied: false)
 
       if column.present?
         stages.where(column: column)
@@ -64,11 +64,11 @@ module RailsStaging
       # TODO
       # - check if record has been saved, save if not
       self.save
-      rails_stages.create(column: column, stageable_id: self.id, predecessor: current_version(column), value: value, type: value.class.name)
+      rails_stages.create(column: column, predecessor: current_version(column), value: value, type: value.class.name)
     end
 
     def current_version(column)
-      if stage = rails_stages.where(column: column, stageable_id: self.id, applied: true).last
+      if stage = rails_stages.where(column: column, applied: true).last
         stage.uuid
       else
         ""
@@ -79,15 +79,14 @@ module RailsStaging
 
       def stage(*columns)
 
-        has_many :rails_stages, as: :stageable
+        puts instance_methods.sort.join("\n")
 
         ##
         # TODO
         #  - overwrite setter
         #  - attach associations
-        #
+
         columns.each do |column|
-          attr_accessor column
 
           old_setter = instance_method("#{column}=")
 
@@ -96,7 +95,7 @@ module RailsStaging
           end
 
           define_method "#{column}=" do |value|
-
+            puts "setting"
             ##
             # TODO
             # - add check for condition
