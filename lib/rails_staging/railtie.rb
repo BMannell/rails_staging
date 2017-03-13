@@ -3,6 +3,7 @@ module RailsStaging
     initializer "rails_staging.configure_rails_initialization" do
       ActiveSupport.on_load :active_record do
         ActiveRecord::Base.send(:include, RailsStaging::ModelMethods)
+        ActionController::Base.send(:include, RailsStaging::ControllerMethods)
       end
     end
   end

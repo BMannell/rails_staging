@@ -16,7 +16,8 @@ class CreateRailsStages < ActiveRecord::Migration
       t.datetime :created_at
       t.datetime :edited_at
     end
-    add_index :rails_stages, [:uuid]
+    add_index :rails_stages, :uuid
+    add_index :rails_stages, [:table, :column, :row_id]
   end
 
 

@@ -1,7 +1,7 @@
 require "rails/generators"
 require "rails/generators/active_record"
 module RailsStaging
-  class InstallGenerator < Rails::Generators::Base
+  class InstallGenerator < ::Rails::Generators::Base
 
     include ::Rails::Generators::Migration
 

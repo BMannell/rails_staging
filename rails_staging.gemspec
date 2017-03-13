@@ -5,7 +5,7 @@ require "rails_staging/version"
 
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
-  s.name        = "rails_staging"
+  s.name        = "RailsStaging"
   s.version     = RailsStaging::VERSION
   s.authors     = ["Ben Mannell"]
   s.email       = ["benjamin.mannell@gmail.com"]

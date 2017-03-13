@@ -38,18 +38,41 @@ class ModelMethodsTest < ActiveSupport::TestCase
     end
   end
 
-
   def test_apply_single_column_all_stages
-    article = Article.new
+    article = Article.create
 
     assert_difference "RailsStage.count", 1 do
       article.title = "Something"
       assert_not article.title, "Something"
     end
 
-    article.apply(:title)
+    article.apply_all(:title)
     assert article.title, "Something"
+  end
 
+  def test_revert_to
+    assert_difference "RailsStage.count", 1 do
+      article = Article.new
+      article.title = "Something"
+      assert_not article.title, "Something"
+    end
+  end
+
+  def test_revert
+    assert_difference "RailsStage.count", 1 do
+      article = Article.new
+      article.title = "Something"
+      assert_not article.title, "Something"
+    end
+  end
+
+
+  def test_current_version
+    article = Article.new
+    stage = article.stage(:title, "Something")
+    assert_not_equal article.current_version(:title), stage.uuid
+    article.apply(stage.uuid)
+    assert_equal article.current_version(:title), stage.uuid
   end
 
 end
