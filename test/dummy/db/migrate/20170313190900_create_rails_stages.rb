@@ -11,9 +11,9 @@ class CreateRailsStages < ActiveRecord::Migration
       t.string :type, null: false, default: ""
       t.string :creator, default: ""
       t.string :authorizer, default: ""
-      t.boolean :reversion, default: false
+      t.boolean :reversion, default: ""
 
-      t.datetime :applied_at, default: false
+      t.datetime :applied_at
 
       t.timestamps null: false
 

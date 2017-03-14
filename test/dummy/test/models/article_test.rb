@@ -9,16 +9,13 @@ class ArticleTest < ActiveSupport::TestCase
     assert Article.methods.include? :stage
   end
 
+
   ##
   # Intsance Methods
-  #
+
   test "association_exists" do
     assert Article.instance_methods.include? :rails_stages
   end
-
-  # test "revert_method_exists" do
-  #   assert Article.instance_methods.include? :revert
-  # end
 
   test "revert_to_method_exists" do
     assert Article.instance_methods.include? :revert_to
@@ -36,37 +33,37 @@ class ArticleTest < ActiveSupport::TestCase
     assert Article.instance_methods.include? :stage
   end
 
-  test "new_setter_method_exists" do
-    assert Article.instance_methods.include? :set_title
-  end
 
-  test "setter" do
-    assert_difference "RailsStage.count", 1 do
-      article = create(:article)
-      article.title = "Something"
-      assert_not article.title, "Something"
-    end
-  end
+  ##
+  # Functionality
 
-  test "apply_single_column_all_stages" do
+  test "apply all" do
     article = create(:article)
+    article.apply_all
 
-    assert_difference "RailsStage.count", 1 do
-      article.title = "Something"
-      assert_not article.title, "Something"
+    assert_not_nil article.title
+    assert_not_nil article.content
+    assert_not_nil article.image
+  end
+
+  test "apply all for a single column" do
+    article = create(:article)
+    article.apply_all
+
+    assert_difference "RailsStage.count", 4 do
+      article.update(title: "Something1")
+      article.update(title: "Something2")
+      article.update(title: "Something3")
+      article.update(title: "Something4")
+      assert_not_equal article.title, "Something4"
     end
 
     article.apply_all(:title)
-    assert article.title, "Something"
+    assert_equal article.title, "Something4"
   end
-
-  test "revert_to" do
-    assert true
-  end
-
 
   test "current_version" do
-    article = Article.new
+    article = create(:article)
     stage = article.stage(:title, "Something")
     assert_not_equal article.current_version(:title), stage.uuid
     article.apply(stage.uuid)

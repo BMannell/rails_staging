@@ -15,4 +15,12 @@ class RailsStage < ::ActiveRecord::Base
     stage.creator = stage.class.stage_creator
   end
 
+  scope :applied, ->{where.not(applied_at: nil)}
+  scope :not_applied, ->{where(applied_at: nil)}
+
+  def apply
+    stageable.update_attribute(column, value)
+    touch(:applied_at)
+  end
+
 end

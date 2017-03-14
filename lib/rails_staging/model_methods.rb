@@ -18,7 +18,7 @@ module RailsStaging
       ActiveRecord::Base.transaction do
         stages.each do |stage|
           self.send("set_#{stage.column}", stage.value)
-          stage.update({applied: false})
+          stage.update(applied_at: nil)
         end
       end
     end
@@ -38,15 +38,14 @@ module RailsStaging
     end
 
     def apply_all(column = nil)
-      stages = rails_stages.where(applied: false)
+      stages = rails_stages.not_applied
       if column.present?
         stages = stages.where(column: column)
       end
       ActiveRecord::Base.transaction do
-        stages.each do |stage|
-          stage.apply
-        end
+        stages.each(&:apply)
       end
+      reload
     end
 
     ##
@@ -59,19 +58,25 @@ module RailsStaging
     def stage(column, value)
       # TODO
       # - check if record has been saved, save if not
-      puts "stage #{column} #{value}"
-      rails_stages.create(column: column, predecessor: current_version(column), value: value.to_s, type: value.class.name)
+      if new_record?
+        rails_stages.build(column: column, predecessor: current_version(column), value: value.to_s, type: value.class.name)
+      else
+        rails_stages.create(column: column, predecessor: current_version(column), value: value.to_s, type: value.class.name)
+      end
     end
 
-    def current_version(column)
-      if stage = rails_stages.where(column: column, applied: true).last
+    def current_version(column=nil)
+      stage = if column
+        rails_stages.applied.where(column: column).last
+      else
+        rails_stages.applied.last
+      end
+      if stage
         stage.uuid
       else
         ""
       end
     end
-
-
 
     private
 
@@ -93,7 +98,7 @@ module RailsStaging
 
       def stage(*columns)
         validate :create_rails_stages
-        has_many :rails_stages, as: :stageable unless instance_methods.include?(:rails_stages)
+        has_many :rails_stages, as: :stageable, autosave: true unless instance_methods.include?(:rails_stages)
         columns.each{|col| add_stageable_column(col.to_s)}
       end
 
