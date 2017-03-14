@@ -2,6 +2,8 @@ module RailsStaging
   module ModelMethods
     extend ActiveSupport::Concern
 
+    @@stageable_columns = []
+
     def revert_to(var)
       stages = if var.is_a? Date
         history.where("created_at <= ?", [var])
@@ -19,7 +21,6 @@ module RailsStaging
           stage.update({applied: false})
         end
       end
-
     end
 
     def history(column=nil)
@@ -31,23 +32,19 @@ module RailsStaging
     end
 
     def apply(uuid)
-      stage = rails_stages.find_by!(uuid: uuid)
-      self.send("set_#{stage.column}", stage.value)
-      stage.update({applied: true})
+      if stage = rails_stages.find_by!(uuid: uuid)
+        stage.apply
+      end
     end
 
     def apply_all(column = nil)
-
       stages = rails_stages.where(applied: false)
-
       if column.present?
-        stages.where(column: column)
+        stages = stages.where(column: column)
       end
-
       ActiveRecord::Base.transaction do
         stages.each do |stage|
-          self.send("set_#{stage.column}", stage.value)
-          stage.update({applied: false})
+          stage.apply
         end
       end
     end
@@ -60,11 +57,10 @@ module RailsStaging
     # - :column - the column that is beign updated
     # - :value
     def stage(column, value)
-
       # TODO
       # - check if record has been saved, save if not
-      self.save
-      rails_stages.create(column: column, predecessor: current_version(column), value: value, type: value.class.name)
+      puts "stage #{column} #{value}"
+      rails_stages.create(column: column, predecessor: current_version(column), value: value.to_s, type: value.class.name)
     end
 
     def current_version(column)
@@ -75,35 +71,38 @@ module RailsStaging
       end
     end
 
+
+
+    private
+
+    def create_rails_stages
+      @staged_changes = changes
+      @@stageable_columns.each do |column|
+        if changed.include?(column)
+          new_value = read_attribute(column)
+          old_value = eval("#{column}_was")
+          write_attribute(column, old_value)
+          self.rails_stages.build(column: column, predecessor: old_value, value: new_value, type: self.class.columns_hash[column].type.to_s )
+        end
+      end
+    end
+
+    public
+
     module ClassMethods
 
       def stage(*columns)
-
-        puts instance_methods.sort.join("\n")
-
-        ##
-        # TODO
-        #  - overwrite setter
-        #  - attach associations
-
-        columns.each do |column|
-
-          old_setter = instance_method("#{column}=")
-
-          define_method "set_#{column}" do |value|
-            old_setter.bind(self).(value)
-          end
-
-          define_method "#{column}=" do |value|
-            puts "setting"
-            ##
-            # TODO
-            # - add check for condition
-
-            self.stage(column,value)
-          end
-        end
+        validate :create_rails_stages
+        has_many :rails_stages, as: :stageable unless instance_methods.include?(:rails_stages)
+        columns.each{|col| add_stageable_column(col.to_s)}
       end
+
+      def add_stageable_column(column)
+        arr = class_variable_get(:@@stageable_columns)
+        arr << column
+        class_variable_set(:@@stageable_columns, arr)
+      end
+
     end
   end
 end

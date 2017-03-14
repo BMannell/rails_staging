@@ -15,18 +15,4 @@ class RailsStage < ::ActiveRecord::Base
     stage.creator = stage.class.stage_creator
   end
 
-  def value
-    case self.type
-    when "Float"
-      self.value.to_f
-    when "Integer"
-      self.value.to_i
-    when "Complex"
-      self.value.to_c
-    when "Rational"
-      self.value.to_r
-    else
-      self.value
-    end
-  end
 end
